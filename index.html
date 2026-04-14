@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Super Ritmo 6.1 - Prof. Matías Poblete</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+    <style>
+        :root {
+            --mario-red: #E52521;
+            --mario-blue: #049CD8;
+            --mario-green: #43B047;
+            --mario-yellow: #FBD000;
+            --bg-sky: #5CB8FF;
+            --border-dark: #111;
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: var(--bg-sky);
+            background-image: radial-gradient(#fff 10%, transparent 11%), radial-gradient(#fff 10%, transparent 11%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            background: #ffffff;
+            padding: 1.5rem 1rem;
+            border-radius: 16px;
+            border: 5px solid var(--border-dark);
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.8);
+            width: 100%;
+            max-width: 1000px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h1 { 
+            font-family: 'Press Start 2P', cursive; 
+            font-size: 1.5rem; 
+            color: var(--mario-red); 
+            text-shadow: 3px 3px 0px var(--border-dark), -2px -2px 0px #fff; 
+            margin-top: 5px; 
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+        .subtitle { color: #555; font-weight: 900; margin-bottom: 15px; font-size: 0.9rem; text-transform: uppercase; }
+
+        /* --- PANTALLA LOGIN --- */
+        #login-section {
+            padding: 30px 15px;
+            background: #f4f4f4;
+            border-radius: 12px;
+            border: 4px dashed #ccc;
+            margin-top: 10px;
+        }
+        input[type="text"] { 
+            font-size: 1.2rem; padding: 12px; border-radius: 8px; border: 4px solid var(--border-dark); 
+            width: 90%; max-width: 300px; text-align: center; margin-bottom: 15px; outline: none; font-family: 'Fredoka';
+            box-shadow: inset 4px 4px 0px rgba(0,0,0,0.1);
+        }
+
+        /* --- HUD --- */
+        .hud-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--border-dark);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .hud-item { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+        .hud-level { color: var(--mario-green); font-family: 'Press Start 2P', cursive; font-size: 0.7rem; }
+        .coin-display { color: var(--mario-yellow); font-family: 'Press Start 2P', cursive; font-size: 1rem; text-shadow: 2px 2px 0 #000; }
+        
+        .progress-wrapper { width: 100%; min-width: 120px; max-width: 200px; background: #333; border-radius: 8px; height: 18px; border: 2px solid #fff; overflow: hidden; position: relative;}
+        .progress-bar { height: 100%; background: var(--mario-yellow); width: 0%; transition: width 0.4s ease; border-right: 2px solid #fff; }
+
+        /* --- DICCIONARIO OPTIMIZADO PARA MÓVILES --- */
+        .instructions-panel {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto; 
+            gap: 10px;
+            margin-bottom: 15px;
+            background: #E8F6FF;
+            padding: 10px;
+            border-radius: 12px;
+            border: 4px solid var(--mario-blue);
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        .instructions-panel::-webkit-scrollbar { display: none; }
+        
+        .card { 
+            background: #fff; padding: 5px; border-radius: 8px; border: 3px solid var(--border-dark); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+            flex: 0 0 auto; 
+            width: 100px;
+            height: 125px; /* Aumentado ligeramente para acomodar la plica */
+        }
+        
+        /* Eliminamos el margin-top negativo que sacaba las plicas del cuadro */
+        .mini-canvas { width: 90px; height: 75px; margin-top: 0px; }
+        
+        .card b { color: var(--mario-red); font-size: 0.95rem; margin-top: -5px; font-weight: 900; line-height: 1.1; text-align: center;}
+        .card small { color: #666; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; margin-bottom: 2px;}
+
+        .txt-blanca { font-size: 0.75rem !important; color: #E52521; }
+
+        /* --- BOTONES --- */
+        .btn-main {
+            padding: 12px 15px; font-size: 1rem; border-radius: 8px; border: 4px solid var(--border-dark);
+            color: white; cursor: pointer; box-shadow: 0 6px 0 var(--border-dark); font-family: 'Fredoka'; font-weight: 900;
+            text-transform: uppercase; transition: all 0.1s; margin: 5px 2px;
+            flex: 1; 
+            min-width: 130px;
+        }
+        .btn-main:active { transform: translateY(6px); box-shadow: 0 0px 0 var(--border-dark); }
+        
+        .btn-start { background: var(--mario-blue); font-size: 1.2rem; }
+        .btn-success { background: var(--mario-green); font-size: 1.1rem; }
+        .btn-skip { background: #FF9800; color: #fff; }
+
+        .button-group {
+            display: flex; 
+            justify-content: center; 
+            gap: 10px; 
+            margin-top: 10px; 
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        /* --- CONTENEDOR VEXFLOW --- */
+        #score-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border: 4px solid var(--border-dark);
+            border-radius: 12px;
+            background: #fff;
+            margin-bottom: 15px;
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.1);
+        }
+        #score-wrapper::-webkit-scrollbar { height: 10px; }
+        #score-wrapper::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 0 0 8px 8px; }
+        #score-wrapper::-webkit-scrollbar-thumb { background: var(--mario-blue); border-radius: 8px; border: 2px solid var(--border-dark); }
+
+        #score-container { display: inline-block; padding: 15px; min-width: 1100px; }
+
+        #game-content, #victory-modal { display: none; }
+
+        /* --- MODAL VICTORIA --- */
+        #victory-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85);
+            display: none; justify-content: center; align-items: center; z-index: 100; padding: 20px; box-sizing: border-box;
+        }
+        .modal-content {
+            background: var(--bg-sky); padding: 30px 20px; border-radius: 16px; text-align: center; 
+            border: 6px solid var(--border-dark); box-shadow: 10px 10px 0px #000;
+            max-width: 400px; width: 100%;
+        }
+        .modal-content h2 { font-family: 'Press Start 2P', cursive; font-size: 1.2rem; color: #fff; text-shadow: 2px 2px 0 #000; margin: 15px 0; line-height: 1.5;}
+        .modal-content p { font-size: 1.1rem; font-weight: bold; color: #111; background: #fff; padding: 10px; border-radius: 8px; border: 3px solid #000;}
+
+        @media (min-width: 600px) {
+            h1 { font-size: 2.2rem; }
+            .subtitle { font-size: 1.2rem; }
+            .btn-main { font-size: 1.2rem; padding: 12px 24px; }
+            .instructions-panel { flex-wrap: wrap; justify-content: center; overflow-x: visible; }
+            .card { width: 110px; height: 130px; padding: 8px; }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <h1>SUPER RITMO</h1>
+    <div class="subtitle">Entrenamiento Musical - Prof. Matías Poblete</div>
+
+    <div id="login-section">
+        <h2 style="color: var(--border-dark); font-size: 1.3rem;">INSERTA TU NOMBRE (COIN)</h2>
+        <input type="text" id="student-name" placeholder="Tu nombre...">
+        <br>
+        <button class="btn-main btn-start" onclick="handleLogin()">START!</button>
+    </div>
+
+    <div id="game-content">
+        <div class="hud-container">
+            <div class="hud-item">👤 <span id="display-name">Jugador</span></div>
+            <div class="hud-item hud-level">NIVEL <span id="display-level">1</span></div>
+            <div class="hud-item" style="flex-direction: column; gap: 4px;">
+                <div class="progress-wrapper"><div class="progress-bar" id="coin-progress"></div></div>
+            </div>
+            <div class="hud-item coin-display"><span id="display-coins">0</span>/50 🪙</div>
+        </div>
+
+        <div class="instructions-panel">
+            <div class="card"><div id="m-h" class="mini-canvas"></div><small>Blanca</small><b class="txt-blanca">Aplauso<br>y giro</b></div>
+            <div class="card"><div id="m-q" class="mini-canvas"></div><small>Negra</small><b>Pan</b></div>
+            <div class="card"><div id="m-28" class="mini-canvas"></div><small>Doble Corchea</small><b>ca-sa</b></div>
+            <div class="card"><div id="m-416" class="mini-canvas"></div><small>Cuartina</small><b>Ra-pi-di-to</b></div>
+            <div class="card"><div id="m-sin" class="mini-canvas"></div><small>Síncopa</small><b>Sin-coo-pa</b></div>
+            <div class="card"><div id="m-gal" class="mini-canvas"></div><small>Galopa</small><b>To-ma-te</b></div>
+            <div class="card"><div id="m-sal" class="mini-canvas"></div><small>Saltillo</small><b>Sal-to</b></div>
+        </div>
+
+        <div id="score-wrapper">
+            <div id="score-container"></div>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn-main btn-skip" onclick="generateExercise()">⏭️ SALTAR</button>
+            <button class="btn-main btn-success" onclick="winCoins()">🍄 ¡BIEN! (+10)</button>
+        </div>
+    </div>
+</div>
+
+<div id="victory-modal">
+    <div class="modal-content">
+        <h1 style="font-size: 4rem; margin: 0; text-shadow: none;">⭐</h1>
+        <h2>¡NIVEL COMPLETADO!</h2>
+        <p id="victory-text">¡Lograste 50 monedas! El Profesor Matías ha sido notificado.</p>
+        <button class="btn-main btn-success" style="margin-top: 15px; width: 100%;" onclick="nextLevel()">SIGUIENTE NIVEL 🚀</button>
+    </div>
+</div>
+
+<script>
+    const { Renderer, Stave, StaveNote, Formatter, Beam, Dot, Barline } = Vex.Flow;
+    
+    let currentDifficulty = 1;
+    let playerName = "";
+    let coins = 0;
+    const GOAL_COINS = 50;
+
+    function handleLogin() {
+        const nameInput = document.getElementById('student-name').value.trim();
+        if(nameInput.length < 2) { alert("¡Ingresa tu nombre para comenzar!"); return; }
+        
+        playerName = nameInput;
+        document.getElementById('display-name').innerText = playerName;
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('game-content').style.display = 'block';
+        
+        drawDictionary();
+        generateExercise();
+    }
+
+    function winCoins() {
+        coins += 10;
+        updateHUD();
+
+        if (coins >= GOAL_COINS) {
+            triggerLevelUp();
+        } else {
+            generateExercise();
+        }
+    }
+
+    function updateHUD() {
+        document.getElementById('display-coins').innerText = coins;
+        document.getElementById('display-level').innerText = currentDifficulty;
+        let progress = Math.min((coins / GOAL_COINS) * 100, 100);
+        document.getElementById('coin-progress').style.width = progress + "%";
+    }
+
+    function triggerLevelUp() {
+        document.getElementById('victory-modal').style.display = 'flex';
+        
+        if (currentDifficulty >= 3) {
+            document.getElementById('victory-text').innerText = "¡ERES UN MAESTRO DEL RITMO! Has completado todos los niveles.";
+            document.querySelector('#victory-modal .btn-success').innerText = "VOLVER A JUGAR";
+        } else {
+            document.getElementById('victory-text').innerText = `¡Lograste ${GOAL_COINS} monedas! Prepárate para el Nivel ${currentDifficulty + 1}.`;
+        }
+
+        fetch("https://formsubmit.co/ajax/matias.poblete@slepcolchagua.cl", {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({
+                Asunto: `🍄 Super Ritmo: ¡${playerName} superó el Nivel ${currentDifficulty}!`,
+                Alumno: playerName,
+                Nivel_Superado: currentDifficulty,
+                Mensaje: `El estudiante ${playerName} completó la recolección de monedas en el nivel ${currentDifficulty}.`
+            })
+        }).catch(error => console.log("Aviso: Error de red al enviar correo.", error));
+    }
+
+    function nextLevel() {
+        document.getElementById('victory-modal').style.display = 'none';
+        if (currentDifficulty < 3) currentDifficulty++;
+        else currentDifficulty = 1; 
+        
+        coins = 0;
+        updateHUD();
+        generateExercise();
+    }
+
+    // --- CORRECCIÓN DE PLICAS (DIBUJO VEXFLOW) ---
+    function drawMini(id, notesData, hasBeam = true) {
+        const div = document.getElementById(id);
+        div.innerHTML = "";
+        const renderer = new Renderer(div, Renderer.Backends.SVG);
+        
+        // Aumentamos el tamaño del lienzo interno para que quepa la figura entera
+        renderer.resize(90, 75); 
+        const context = renderer.getContext();
+        context.scale(0.8, 0.8);
+        
+        // Bajamos el pentagrama de -25 a -5 para que las plicas tengan espacio arriba
+        const stave = new Stave(5, -5, 100); 
+        stave.setBegBarType(Barline.type.NONE).setEndBarType(Barline.type.NONE);
+        stave.getConfigForLines().forEach(l => l.visible = false);
+        stave.setContext(context).draw();
+
+        const notes = notesData.map(d => {
+            const sn = new StaveNote({ keys: ["b/4"], duration: d.dur, stem_direction: 1 });
+            if(d.dot) Dot.buildAndAttach([sn], { all: true });
+            return sn;
+        });
+
+        if(hasBeam && notes.length > 1) {
+            const beam = new Beam(notes);
+            Formatter.FormatAndDraw(context, stave, notes);
+            beam.setContext(context).draw();
+        } else {
+            Formatter.FormatAndDraw(context, stave, notes);
+        }
+    }
+
+    function drawDictionary() {
+        drawMini('m-h', [{dur: 'h'}], false);
+        drawMini('m-q', [{dur: 'q'}], false);
+        drawMini('m-28', [{dur: '8'}, {dur: '8'}]);
+        drawMini('m-416', [{dur: '16'}, {dur: '16'}, {dur: '16'}, {dur: '16'}]);
+        drawMini('m-sin', [{dur: '16'}, {dur: '8'}, {dur: '16'}]);
+        drawMini('m-gal', [{dur: '8'}, {dur: '16'}, {dur: '16'}]);
+        drawMini('m-sal', [{dur: '8d', dot: true}, {dur: '16'}]);
+    }
+
+    const poolBasico = [
+        { key: 'h', beats: 2, create: () => [new StaveNote({ keys: ["b/4"], duration: "h", stem_direction: 1 })] },
+        { key: 'q', beats: 1, create: () => [new StaveNote({ keys: ["b/4"], duration: "q", stem_direction: 1 })] },
+        { key: 'qr', beats: 1, create: () => [new StaveNote({ keys: ["b/4"], duration: "qr" })] },
+        { key: 'hr', beats: 2, create: () => [new StaveNote({ keys: ["b/4"], duration: "hr" })] }  
+    ];
+
+    const poolAgrupaciones = [
+        { key: 'double', beats: 1, create: () => [new StaveNote({ keys: ["b/4"], duration: "8", stem_direction: 1 }), new StaveNote({ keys: ["b/4"], duration: "8", stem_direction: 1 })] },
+        { key: 'cuartina', beats: 1, create: () => [new StaveNote({ keys: ["b/4"], duration: "16", stem_direction: 1 }), new StaveNote({ keys: ["b/4"], duration: "16", stem_direction: 1 }), new StaveNote({ keys: ["b/4"], duration: "16", stem_direction: 1 }), new StaveNote({ keys: ["b/4"], duration: "16", stem_direction: 1 })] },
+        { key: 'galopa', beats: 1, create: () => [new StaveNote({ keys: ["b/4"], duration: "8", stem_direction: 1 }), new StaveNote({ keys: ["b/4"], duration: "16", stem_direction: 1 }), new StaveNote({ keys: ["b/4"], duration: "16", stem_direction: 1 })] },
+        { key: 'sincopa', beats: 1, create: () => [new StaveNote({ keys: ["b/4"], duration: "16", stem_direction: 1 }), new StaveNote({ keys: ["b/4"], duration: "8", stem_direction: 1 }), new StaveNote({ keys: ["b/4"], duration: "16", stem_direction: 1 })] },
+        { key: 'saltillo', beats: 1, create: () => {
+            const n = new StaveNote({ keys: ["b/4"], duration: "8d", stem_direction: 1 });
+            Dot.buildAndAttach([n], { reflection: 1 });
+            return [n, new StaveNote({ keys: ["b/4"], duration: "16", stem_direction: 1 })];
+        }}
+    ];
+
+    function generateExercise() {
+        const container = document.getElementById("score-container");
+        container.innerHTML = "";
+        const renderer = new Renderer(container, Renderer.Backends.SVG);
+        const context = renderer.getContext();
+        
+        const numMeasures = 4;
+        const measureWidth = 270; 
+        renderer.resize(numMeasures * measureWidth + 50, 160);
+
+        let totalGroupingsTarget;
+        if(currentDifficulty === 1) totalGroupingsTarget = Math.floor(Math.random() * 2) + 1; 
+        else if(currentDifficulty === 2) totalGroupingsTarget = 2; 
+        else totalGroupingsTarget = Math.floor(Math.random() * 3) + 3; 
+
+        let groupingsPerMeasure = [0, 0, 0, 0];
+        for(let i = 0; i < totalGroupingsTarget; i++) {
+            let rndMeasure = Math.floor(Math.random() * 4);
+            if(groupingsPerMeasure[rndMeasure] < 4) groupingsPerMeasure[rndMeasure]++;
+            else i--; 
+        }
+
+        let tipoRepeticion = Math.floor(Math.random() * 3); 
+
+        let x = 10;
+        for (let m = 0; m < numMeasures; m++) {
+            const stave = new Stave(x, 20, measureWidth);
+            
+            if (m === 0) {
+                stave.addTimeSignature("4/4");
+                if (tipoRepeticion === 1 || tipoRepeticion === 2) stave.setBegBarType(Barline.type.REPEAT_BEGIN);
+                if (tipoRepeticion === 1) stave.setEndBarType(Barline.type.REPEAT_END);
+            }
+            if (m === numMeasures - 1) {
+                if (tipoRepeticion === 2) stave.setEndBarType(Barline.type.REPEAT_END);
+                else stave.setEndBarType(Barline.type.END);
+            }
+            
+            stave.getConfigForLines().forEach((l, i) => l.visible = i === 2);
+            stave.setContext(context).draw();
+
+            let measureItems = [];
+            let currentBeats = 0;
+
+            for(let i=0; i < groupingsPerMeasure[m]; i++) {
+                const group = poolAgrupaciones[Math.floor(Math.random() * poolAgrupaciones.length)];
+                measureItems.push({ data: group });
+                currentBeats += group.beats;
+            }
+
+            while(currentBeats < 4) {
+                let validBasics = poolBasico.filter(b => b.beats <= (4 - currentBeats));
+                const basic = validBasics[Math.floor(Math.random() * validBasics.length)];
+                measureItems.push({ data: basic });
+                currentBeats += basic.beats;
+            }
+
+            measureItems.sort(() => Math.random() - 0.5);
+
+            let measureNotes = [];
+            measureItems.forEach(item => measureNotes.push(...item.data.create()));
+
+            const beams = Beam.generateBeams(measureNotes, { stem_direction: 1 });
+            
+            Formatter.FormatAndDraw(context, stave, measureNotes);
+            beams.forEach(b => b.setContext(context).draw());
+            x += measureWidth;
+        }
+    }
+</script>
+</body>
+</html>
