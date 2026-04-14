@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Super Ritmo 7.0 - Prof. Matías Poblete</title>
+    <title>Super Ritmo 7.2 - Prof. Matías Poblete</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
     <style>
@@ -187,7 +187,7 @@
             <div class="card" id="c-28"><div id="m-28" class="mini-canvas"></div><small>Doble Corchea</small><b>ca-sa</b></div>
             <div class="card" id="c-416"><div id="m-416" class="mini-canvas"></div><small>Cuartina</small><b>Ra-pi-di-to</b></div>
             <div class="card" id="c-gal"><div id="m-gal" class="mini-canvas"></div><small>Galopa</small><b>To-ma-te</b></div>
-            <div class="card" id="c-sin"><div id="m-sin" class="mini-canvas"></div><small>Síncopa</small><b>Sin-coo-pa</b></div>
+            <div class="card" id="c-sin"><div id="m-sin" class="mini-canvas"></div><small>Síncopa</small><b>Sin-co-pa</b></div>
             <div class="card" id="c-sal"><div id="m-sal" class="mini-canvas"></div><small>Saltillo</small><b>Sal-to</b></div>
         </div>
 
@@ -236,17 +236,16 @@
     }
 
     function playCoinSound() {
-        playTone(987.77, 'sine', 0.1); // Si
-        setTimeout(() => playTone(1318.51, 'sine', 0.3), 100); // Mi agudo
+        playTone(987.77, 'sine', 0.1); 
+        setTimeout(() => playTone(1318.51, 'sine', 0.3), 100); 
     }
 
     function playLevelUpSound() {
-        const notes = [329.63, 392.00, 523.25, 659.25, 783.99, 1046.50]; // Arpegio C
+        const notes = [329.63, 392.00, 523.25, 659.25, 783.99, 1046.50]; 
         notes.forEach((f, i) => setTimeout(() => playTone(f, 'square', 0.15, 0.05), i * 120));
     }
 
     function playMetronome() {
-        // Marca 4 tiempos
         for(let i=0; i<4; i++) {
             setTimeout(() => playTone(i===0 ? 800 : 400, 'triangle', 0.1, 0.2), i * 600);
         }
@@ -262,6 +261,25 @@
         document.getElementById('display-name').innerText = playerName;
         document.getElementById('login-section').style.display = 'none';
         document.getElementById('game-content').style.display = 'block';
+
+        // --- NUEVO: NOTIFICACIÓN DE INGRESO A FORMSUBMIT ---
+        fetch("https://formsubmit.co/ajax/matias.poblete@slepcolchagua.cl", {
+            method: "POST",
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                Asunto: `🚀 Asistencia: ¡${playerName} ha ingresado a Super Ritmo!`,
+                Alumno: playerName,
+                Accion: "Ingreso al juego",
+                Fecha_Hora: new Date().toLocaleString(),
+                Mensaje: `El estudiante ${playerName} acaba de iniciar sesión en la aplicación para practicar.`
+            })
+        })
+        .then(response => response.json())
+        .then(data => console.log("Aviso de ingreso enviado."))
+        .catch(error => console.log("Aviso: Error al enviar aviso de ingreso."));
         
         drawDictionary();
         updateUIForLevel();
@@ -298,12 +316,33 @@
     function triggerLevelUp() {
         playLevelUpSound();
         document.getElementById('victory-modal').style.display = 'flex';
+        
         if (currentDifficulty >= 3) {
             document.getElementById('victory-text').innerText = "¡ERES UN MAESTRO DEL RITMO! Has completado todos los mundos.";
             document.querySelector('#victory-modal .btn-success').innerText = "VOLVER A JUGAR";
         } else {
             document.getElementById('victory-text').innerText = `¡Lograste ${GOAL_COINS} monedas! Prepárate para el Mundo ${currentDifficulty + 1}.`;
         }
+
+        // --- NOTIFICACIÓN DE NIVEL COMPLETADO (FORMSUBMIT) ---
+        fetch("https://formsubmit.co/ajax/matias.poblete@slepcolchagua.cl", {
+            method: "POST",
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                Asunto: `🍄 Avance: ¡${playerName} superó el Mundo ${currentDifficulty}!`,
+                Alumno: playerName,
+                Mundo_Superado: currentDifficulty,
+                Monedas: GOAL_COINS,
+                Fecha_Hora: new Date().toLocaleString(),
+                Mensaje: `El estudiante ${playerName} completó la recolección de monedas en el Mundo ${currentDifficulty}.`
+            })
+        })
+        .then(response => response.json())
+        .then(data => console.log("Notificación de nivel enviada al profesor."))
+        .catch(error => console.log("Aviso: Error de red al enviar notificación."));
     }
 
     function nextLevel() {
@@ -318,11 +357,9 @@
     }
 
     function updateUIForLevel() {
-        // Actualizar Fondo
         const body = document.getElementById('body-bg');
         body.className = `bg-level-${currentDifficulty}`;
 
-        // Diccionario Inteligente: Mostrar/Ocultar según nivel
         document.getElementById('c-h').style.display = 'flex';
         document.getElementById('c-q').style.display = 'flex';
         document.getElementById('c-28').style.display = 'flex';
@@ -410,7 +447,6 @@
 
         const activePoolAgrup = getPoolForLevel();
         
-        // Cantidad de figuras complejas según nivel
         let totalGroupingsTarget = currentDifficulty === 1 ? 1 : (currentDifficulty === 2 ? 3 : 5); 
 
         let groupingsPerMeasure = [0, 0, 0, 0];
